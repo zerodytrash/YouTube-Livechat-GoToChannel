@@ -2,7 +2,7 @@
  A simple userscript to restore the "Visit Channel" functionality in YouTube Livestream Chats. Works currently in Chrome.
 
 ## Installation
-1. Download Tampermonkey: https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfohttps://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo
+1. Download Tampermonkey: https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo
 
 2. Install YouTube-Livechat-Channel-Resolver by clicking the following Link: https://github.com/zerodytrash/YouTube-Livechat-Channel-Resolver/raw/master/YouTube%20Livechat%20Channel%20Resolver.user.js
 
