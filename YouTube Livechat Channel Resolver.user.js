@@ -127,7 +127,7 @@ var main = function() {
         var responseData = JSON.parse(response);
 
         // legacy stuff: the "response"-attribute has been removed since the fetch-api update. But we should keep this for backward compatibility.
-        var mainMenuRendererNode = responseData.response ? responseData.response : responseData.liveChatItemContextMenuSupportedRenderers;
+        var mainMenuRendererNode = (responseData.response ? responseData.response : responseData).liveChatItemContextMenuSupportedRenderers;
 
         // append visit channel menu item
         mainMenuRendererNode.menuRenderer.items.push(generateMenuLinkItem("/channel/" + mappedChannel.channelId, "Visit Channel", "ACCOUNT_BOX"));
