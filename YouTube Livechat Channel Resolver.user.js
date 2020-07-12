@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Livechat Channel Resolver
 // @namespace    https://zerody.one/
-// @version      0.2
+// @version      0.3
 // @description  A simple script to resolve the channel-id from any livechat comment on youtube.
 // @author       ZerodyOne
 // @match        https://www.youtube.com/*
@@ -16,7 +16,10 @@ var main = function() {
     // backup the original XMLHttpRequest open function
     var originalRequestOpen = XMLHttpRequest.prototype.open;
 
-    // helper function used to intercept and modify youtube api responses
+    // backup the original fetch function
+    var originalFetch = window.fetch;
+
+    // helper functions used to intercept and modify youtube api responses
     var responseProxy = function(callback) {
         XMLHttpRequest.prototype.open = function() {
             this.addEventListener("readystatechange", function(event) {
@@ -36,6 +39,26 @@ var main = function() {
 
             return originalRequestOpen.apply(this, arguments);
         };
+
+        // since july 2020 YouTube uses the Fetch-API to retrieve context menu items
+        window.fetch = (...args) => (async(args) => {
+            var result = await originalFetch(...args);
+            var json = await result.json();
+
+            // returns the original result if the request fails
+            if(json === null) return result;
+
+            var responseText = JSON.stringify(json);
+            var responseTextModified = callback(result.url, responseText);
+
+            if(responseText === responseTextModified) return result;
+
+            result.json = function() {
+                return JSON.parse(responseTextModified);
+            }
+
+            return result;
+        })(args);
     };
 
     var extractAuthorExternalChannelIds = function(chatData) {
@@ -103,11 +126,14 @@ var main = function() {
         // parse the orignal server response
         var responseData = JSON.parse(response);
 
+        // legacy stuff: the "response"-attribute has been removed since the fetch-api update. But we should keep this for backward compatibility.
+        var mainMenuRendererNode = responseData.response ? responseData.response : responseData.liveChatItemContextMenuSupportedRenderers;
+
         // append visit channel menu item
-        responseData.response.liveChatItemContextMenuSupportedRenderers.menuRenderer.items.push(generateMenuLinkItem("/channel/" + mappedChannel.channelId, "Visit Channel", "ACCOUNT_BOX"));
+        mainMenuRendererNode.menuRenderer.items.push(generateMenuLinkItem("/channel/" + mappedChannel.channelId, "Visit Channel", "ACCOUNT_BOX"));
 
         // append social blade statistic shortcut
-        responseData.response.liveChatItemContextMenuSupportedRenderers.menuRenderer.items.push(generateMenuLinkItem("https://socialblade.com/youtube/channel/" + mappedChannel.channelId, "Socialblade Statistic", "MONETIZATION_ON"));
+        mainMenuRendererNode.menuRenderer.items.push(generateMenuLinkItem("https://socialblade.com/youtube/channel/" + mappedChannel.channelId, "Socialblade Statistic", "MONETIZATION_ON"));
 
         // re-stringify json object to overwrite the original server response
         response = JSON.stringify(responseData);
@@ -123,7 +149,9 @@ var main = function() {
             if(reqUrl.startsWith("https://www.youtube.com/live_chat/get_live_chat?")) extractAuthorExternalChannelIds(JSON.parse(responseText).response);
 
             // when you open the context menu this request will be fired to load the context menu options. We will modify the response to append additional items
+            // there are two api-endpoints, the first one is deprecated
             if(reqUrl.startsWith("https://www.youtube.com/live_chat/get_live_chat_item_context_menu?")) return appendAdditionalChannelContextItems(reqUrl, responseText);
+            if(reqUrl.startsWith("https://www.youtube.com/youtubei/v1/live_chat/get_item_context_menu?")) return appendAdditionalChannelContextItems(reqUrl, responseText);
 
         } catch(ex) {
             console.error("YouTube Livechat Channel Resolver - Exception!!!:", ex);
