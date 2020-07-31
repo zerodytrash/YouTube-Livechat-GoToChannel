@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Livechat Channel Resolver
 // @namespace    https://zerody.one/
-// @version      0.3
+// @version      0.4
 // @description  A simple script to resolve the channel-id from any livechat comment on youtube.
 // @author       ZerodyOne
 // @match        https://www.youtube.com/*
@@ -50,8 +50,6 @@ var main = function() {
 
             var responseText = JSON.stringify(json);
             var responseTextModified = callback(result.url, responseText);
-
-            if(responseText === responseTextModified) return result;
 
             result.json = function() {
                 return JSON.parse(responseTextModified);
@@ -146,11 +144,17 @@ var main = function() {
     responseProxy(function(reqUrl, responseText) {
         try {
             // we will extract the channel-ids from the "get_live_chat" response
+            // old api endpoint:
             if(reqUrl.startsWith("https://www.youtube.com/live_chat/get_live_chat?")) extractAuthorExternalChannelIds(JSON.parse(responseText).response);
 
-            // when you open the context menu this request will be fired to load the context menu options. We will modify the response to append additional items
-            // there are two api-endpoints, the first one is deprecated
+            // new api endpoint (since july 2020):
+            if(reqUrl.startsWith("https://www.youtube.com/youtubei/v1/live_chat/get_live_chat?")) extractAuthorExternalChannelIds(JSON.parse(responseText));
+
+            // when you open the context menu one of the following requests will be fired to load the context menu options. We will modify the response to append additional items
+            // old api endpoint:
             if(reqUrl.startsWith("https://www.youtube.com/live_chat/get_live_chat_item_context_menu?")) return appendAdditionalChannelContextItems(reqUrl, responseText);
+
+            // new api endpoint (since june 2020):
             if(reqUrl.startsWith("https://www.youtube.com/youtubei/v1/live_chat/get_item_context_menu?")) return appendAdditionalChannelContextItems(reqUrl, responseText);
 
         } catch(ex) {
