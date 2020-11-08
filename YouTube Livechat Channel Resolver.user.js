@@ -59,27 +59,33 @@ var main = function() {
         })(args);
     };
 
-    var extractAuthorExternalChannelIds = function(chatData) {
+    var extractCommentActionChannelId = function(action) {
+        if (action.replayChatItemAction) {
+            action.replayChatItemAction.actions.forEach(extractCommentActionChannelId);
+            return;
+        }
 
+        if(!action.addChatItemAction) return;
+
+        var messageItem = action.addChatItemAction.item.liveChatTextMessageRenderer;
+        if(!messageItem || !messageItem.authorExternalChannelId) return;
+
+        // remove old entries
+        if(mappedChannelIds.length > 5000) mappedChannelIds.shift();
+
+        mappedChannelIds.push({
+            channelId: messageItem.authorExternalChannelId,
+            commentId: messageItem.id,
+            contextMenuEndpointParams: messageItem.contextMenuEndpoint.liveChatItemContextMenuEndpoint.params
+        });
+    }
+
+    var extractAuthorExternalChannelIds = function(chatData) {
         // lets deal with this stupid json object...
         var availableCommentActions = chatData.continuationContents ? chatData.continuationContents.liveChatContinuation.actions : chatData.contents.liveChatRenderer.actions;
         if(!availableCommentActions || !Array.isArray(availableCommentActions)) return;
 
-        availableCommentActions.forEach(action => {
-            if(!action.addChatItemAction) return;
-
-            var messageItem = action.addChatItemAction.item.liveChatTextMessageRenderer;
-            if(!messageItem || !messageItem.authorExternalChannelId) return;
-
-            // remove old entries
-            if(mappedChannelIds.length > 5000) mappedChannelIds.shift();
-
-            mappedChannelIds.push({
-                channelId: messageItem.authorExternalChannelId,
-                commentId: messageItem.id,
-                contextMenuEndpointParams: messageItem.contextMenuEndpoint.liveChatItemContextMenuEndpoint.params
-            });
-        });
+        availableCommentActions.forEach(extractCommentActionChannelId);
 
         console.info(mappedChannelIds.length + " Channel-IDs mapped!");
     }
@@ -146,9 +152,11 @@ var main = function() {
             // we will extract the channel-ids from the "get_live_chat" response
             // old api endpoint:
             if(reqUrl.startsWith("https://www.youtube.com/live_chat/get_live_chat?")) extractAuthorExternalChannelIds(JSON.parse(responseText).response);
+            if(reqUrl.startsWith("https://www.youtube.com/live_chat/get_live_chat_replay?")) extractAuthorExternalChannelIds(JSON.parse(responseText).response);
 
             // new api endpoint (since july 2020):
             if(reqUrl.startsWith("https://www.youtube.com/youtubei/v1/live_chat/get_live_chat?")) extractAuthorExternalChannelIds(JSON.parse(responseText));
+            if(reqUrl.startsWith("https://www.youtube.com/youtubei/v1/live_chat/get_live_chat_replay?")) extractAuthorExternalChannelIds(JSON.parse(responseText));
 
             // when you open the context menu one of the following requests will be fired to load the context menu options. We will modify the response to append additional items
             // old api endpoint:
@@ -198,14 +206,16 @@ var injectScript = function(frameWindow) {
 var retrieveChatFrameWindow = function() {
 
     // Chrome (Tampermonkey) will execute the userscript directly into the iframe, thats fine.
-    if(window.location.pathname === "/live_chat") return window;
+    if(window.location.pathname === "/live_chat" || window.location.pathname === "/live_chat_replay") return window;
 
     // Unfortunately, Firefox (Greasemonkey) runs the script only in the main window.
     // We have to navigate into the correct chat iframe
     for (var i = 0; i < window.frames.length; i++) {
         try {
-            if(window.frames[i].location && window.frames[i].location.pathname === "/live_chat") return frames[i];
-
+            if(window.frames[i].location) {
+                var pathname = window.frames[i].location.pathname;
+                if(pathname === "/live_chat" || pathname === "/live_chat_replay") return frames[i];
+            }
         } catch(ex) { }
     }
 }
