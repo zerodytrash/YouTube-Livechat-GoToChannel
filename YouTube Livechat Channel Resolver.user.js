@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         YouTube Livechat Channel Resolver
 // @namespace    https://zerody.one/
-// @version      0.4
+// @version      0.5
 // @description  A simple script to resolve the channel-id from any livechat comment on youtube.
 // @author       ZerodyOne
 // @match        https://www.youtube.com/*
@@ -52,8 +52,16 @@ var main = function() {
             var responseTextModified = callback(result.url, responseText);
 
             result.json = function() {
-                return JSON.parse(responseTextModified);
-            }
+                return new Promise(function(resolve, reject) {
+                    resolve(JSON.parse(responseTextModified));
+                })
+            };
+
+            result.text = function() {
+                return new Promise(function(resolve, reject) {
+                    resolve(responseTextModified);
+                })
+            };
 
             return result;
         })(args);
