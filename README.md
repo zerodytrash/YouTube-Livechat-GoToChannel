@@ -1,4 +1,4 @@
-# YouTube Livechat Channel Resolver
+# YouTube Livechat Channel Resolver (Go To Channel)
  A simple userscript to restore the "Visit Channel" or "Go To Channel" functionality in YouTube Livestream Chats. Works currently in Chrome, Firefox, Opera, Safari and MS Edge
  
  <img src="https://raw.githubusercontent.com/zerodytrash/YouTube-Livechat-Channel-Resolver/master/screenshot1.png" width="300">
