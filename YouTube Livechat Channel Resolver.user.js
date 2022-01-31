@@ -1,12 +1,12 @@
 // ==UserScript==
 // @name            YouTube Livechat Channel Resolver (Go To Channel)
 // @namespace       https://github.com/zerodytrash/YouTube-Livechat-Channel-Resolver
-// @version         0.6
+// @version         0.7
 // @description     A simple script to restore the "Go To Channel" option on any livechat comment on YouTube.
 // @description:de  Ein einfaches script um die "Zum Kanal" Funktion bei allen Livechat-Kommentaren auf YouTube wiederherzustellen.
 // @author          Zerody (https://github.com/zerodytrash)
-// @updateURL       https://github.com/zerodytrash/YouTube-Livechat-Channel-Resolver/raw/master/YouTube%20Livechat%20Channel%20Resolver.user.js
-// @downloadURL     https://github.com/zerodytrash/YouTube-Livechat-Channel-Resolver/raw/master/YouTube%20Livechat%20Channel%20Resolver.user.js
+// @updateURL       https://github.com/xl400v/YouTube-Livechat-Channel-Resolver/raw/live-chat-items/YouTube%20Livechat%20Channel%20Resolver.user.js
+// @downloadURL     https://greasyfork.org/scripts/430601-youtube-livechat-channel-resolver-go-to-channel/code/YouTube%20Livechat%20Channel%20Resolver%20(Go%20To%20Channel).user.js
 // @supportURL      https://github.com/zerodytrash/YouTube-Livechat-Channel-Resolver/issues
 // @license         MIT
 // @match           https://www.youtube.com/*
@@ -84,17 +84,19 @@ var main = function() {
         }
 
         if(!action.addChatItemAction) return;
-
-        var messageItem = action.addChatItemAction.item.liveChatTextMessageRenderer;
-        if(!messageItem || !messageItem.authorExternalChannelId) return;
+        
+        var messageItem = action.addChatItemAction.item;
+        var mappedItem = messageItem.liveChatPaidMessageRenderer ?? messageItem.liveChatTextMessageRenderer
+                ?? messageItem.liveChatPaidStickerRenderer ?? messageItem.liveChatMembershipItemRenderer;
+        if(!mappedItem || !mappedItem.authorExternalChannelId) return;
 
         // remove old entries
         if(mappedChannelIds.length > 5000) mappedChannelIds.shift();
 
         mappedChannelIds.push({
-            channelId: messageItem.authorExternalChannelId,
-            commentId: messageItem.id,
-            contextMenuEndpointParams: messageItem.contextMenuEndpoint.liveChatItemContextMenuEndpoint.params
+            channelId: mappedItem.authorExternalChannelId,
+            commentId: mappedItem.id,
+            contextMenuEndpointParams: mappedItem.contextMenuEndpoint.liveChatItemContextMenuEndpoint.params
         });
     }
 
@@ -151,12 +153,12 @@ var main = function() {
         // legacy stuff: the "response"-attribute has been removed since the fetch-api update. But we should keep this for backward compatibility.
         var mainMenuRendererNode = (responseData.response ? responseData.response : responseData).liveChatItemContextMenuSupportedRenderers;
 
-        // append visit channel menu item
-        mainMenuRendererNode.menuRenderer.items.push(generateMenuLinkItem("/channel/" + mappedChannel.channelId, "Visit Channel", "ACCOUNT_BOX"));
-
         // append social blade statistic shortcut
-        mainMenuRendererNode.menuRenderer.items.push(generateMenuLinkItem("https://socialblade.com/youtube/channel/" + mappedChannel.channelId, "Socialblade Statistic", "MONETIZATION_ON"));
-
+        mainMenuRendererNode.menuRenderer.items.unshift(generateMenuLinkItem("https://playboard.co/en/channel/" + mappedChannel.channelId, "PlayBoard Statistic", "INSIGHTS"));
+      
+        // append visit channel menu item
+        mainMenuRendererNode.menuRenderer.items.unshift(generateMenuLinkItem("/channel/" + mappedChannel.channelId, "Visit Channel", "MY_CHANNEL"));
+        
         // re-stringify json object to overwrite the original server response
         response = JSON.stringify(responseData);
 
