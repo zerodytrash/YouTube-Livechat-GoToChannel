@@ -158,6 +158,9 @@ var main = function() {
         if(mainMenuRendererNode.menuRenderer.items[0].menuNavigationItemRenderer?.icon.iconType == "ACCOUNT_CIRCLE") mainMenuRendererNode.menuRenderer.items.shift();
 
         // append social blade statistic shortcut
+        mainMenuRendererNode.menuRenderer.items.unshift(generateMenuLinkItem("https://socialblade.com/youtube/channel/" + mappedChannel.channelId, "Socialblade Statistic", "MONETIZATION_ON"));
+        
+        // append social blade statistic shortcut
         mainMenuRendererNode.menuRenderer.items.unshift(generateMenuLinkItem("https://playboard.co/en/channel/" + mappedChannel.channelId, "PlayBoard Statistic", "INSIGHTS"));
       
         // append visit channel menu item
