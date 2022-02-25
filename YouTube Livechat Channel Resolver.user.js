@@ -7,7 +7,7 @@
 // @author          Zerody (https://github.com/zerodytrash)
 // @icon            https://www.google.com/s2/favicons?domain=youtube.com
 // @updateURL       https://github.com/zerodytrash/YouTube-Livechat-Channel-Resolver/raw/master/YouTube%20Livechat%20Channel%20Resolver.user.js
-// @downloadURL     https://greasyfork.org/scripts/430601-youtube-livechat-channel-resolver-go-to-channel/code/YouTube%20Livechat%20Channel%20Resolver%20(Go%20To%20Channel).user.js
+// @downloadURL     https://github.com/zerodytrash/YouTube-Livechat-Channel-Resolver/raw/master/YouTube%20Livechat%20Channel%20Resolver.user.js
 // @supportURL      https://github.com/zerodytrash/YouTube-Livechat-Channel-Resolver/issues
 // @license         MIT
 // @match           https://www.youtube.com/live_chat*
