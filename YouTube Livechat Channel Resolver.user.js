@@ -1,14 +1,14 @@
 // ==UserScript==
-// @name            YouTube Livechat Channel Resolver (Go To Channel)
-// @namespace       https://github.com/zerodytrash/YouTube-Livechat-Channel-Resolver
-// @version         0.8
+// @name            YouTube Livechat GoToChannel
+// @namespace       https://github.com/zerodytrash/YouTube-Livechat-GoToChannel
+// @version         0.9
 // @description     A simple script to restore the "Go To Channel" option on any livechat comment on YouTube.
 // @description:de  Ein einfaches script um die "Zum Kanal" Funktion bei allen Livechat-Kommentaren auf YouTube wiederherzustellen.
 // @author          Zerody (https://github.com/zerodytrash)
 // @icon            https://www.google.com/s2/favicons?domain=youtube.com
-// @updateURL       https://github.com/zerodytrash/YouTube-Livechat-Channel-Resolver/raw/master/YouTube%20Livechat%20Channel%20Resolver.user.js
-// @downloadURL     https://github.com/zerodytrash/YouTube-Livechat-Channel-Resolver/raw/master/YouTube%20Livechat%20Channel%20Resolver.user.js
-// @supportURL      https://github.com/zerodytrash/YouTube-Livechat-Channel-Resolver/issues
+// @updateURL       https://github.com/zerodytrash/YouTube-Livechat-GoToChannel/raw/master/YouTube%20Livechat%20Channel%20Resolver.user.js
+// @downloadURL     https://github.com/zerodytrash/YouTube-Livechat-GoToChannel/raw/master/YouTube%20Livechat%20Channel%20Resolver.user.js
+// @supportURL      https://github.com/zerodytrash/YouTube-Livechat-GoToChannel/issues
 // @license         MIT
 // @match           https://www.youtube.com/*
 // @grant           none
