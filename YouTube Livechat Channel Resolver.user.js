@@ -126,6 +126,13 @@ var main = function() {
                     "iconType": icon
                 },
                 "navigationEndpoint":{
+                    "commandMetadata":{
+                        "webCommandMetadata":{
+                            "url": url,
+                            "webPageType": "WEB_PAGE_TYPE_UNKNOWN",
+                            "rootVe": 0
+                        }
+                    },
                     "urlEndpoint":{
                         "url": url,
                         "target": "TARGET_NEW_WINDOW"
