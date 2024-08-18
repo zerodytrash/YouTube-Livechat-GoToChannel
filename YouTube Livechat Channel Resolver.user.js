@@ -30,6 +30,9 @@ var main = function() {
     // backup the original fetch function
     var originalFetch = window.fetch;
 
+    // trusted type policy
+    var trustedTypePolicy = window.trustedTypePolicy;
+
     // helper functions used to intercept and modify youtube api responses
     var responseProxy = function(callback) {
         XMLHttpRequest.prototype.open = function() {
@@ -206,7 +209,7 @@ var main = function() {
     var scripts = document.getElementsByTagName("script");
     for (var script of scripts) {
         if(script.text.indexOf("window[\"ytInitialData\"]") >= 0) {
-            window.eval(script.text.replace("ytInitialData", "ytInitialData_original"));
+            window.eval(trustedTypePolicy.createScript(script.text.replace("ytInitialData", "ytInitialData_original")));
         }
     }
 
@@ -224,7 +227,18 @@ var injectScript = function(frameWindow) {
 
     console.info("Run Fury, run!");
 
-    frameWindow.eval("("+ main.toString() +")();");
+    // Set up passthrough trusted types policy if supported by the browser
+    if (frameWindow.trustedTypes) {
+        frameWindow.trustedTypePolicy = frameWindow.trustedTypes.createPolicy("ytgtc_policy", {
+            createScript: value => value,
+        });
+    } else {
+        frameWindow.trustedTypePolicy = {
+            createScript: value => value,
+        };
+    }
+
+    frameWindow.eval(frameWindow.trustedTypePolicy.createScript("("+ main.toString() +")();"));
 }
 
 // We need this to detect the chat frame in firefox
